@@ -38,12 +38,19 @@
 
 <div class="col-lg-5">
   <label> Email </label>
-   <input type="text" name="email" class="form-control searchEmail" placeholder="Search for Email Only...">
+   <input type="text" name="email_search" class="form-control searchEmail" placeholder="Search for Email Only...">
 </div> 
 
 <br />
 
 <hr />
+
+
+    <div class="alert alert-danger print-error-msg" style="display:none">
+
+        <ul></ul>
+
+    </div>
 
     <table class="table table-bordered data-table">
 
@@ -103,7 +110,7 @@
 
                         <div class="col-sm-12">
 
-                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter First Name" value="" maxlength="50" required="">
+                            <input type="text" class="form-control" id="first_name" name="first_name" placeholder="Enter First Name" value="" maxlength="50" required="Please Enter First Name">
 
                         </div>
 
@@ -115,7 +122,7 @@
 
                         <div class="col-sm-12">
 
-                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter Last Name" value="" maxlength="50" required="">
+                            <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Enter Last Name" value="" maxlength="50" required="Please Enter Last Name">
 
                         </div>
 
@@ -128,7 +135,7 @@
 
                         <div class="col-sm-12">
 
-                            <input type="text" class="form-control" id="email" name="email" placeholder="Enter Email" value="" maxlength="50" required="">
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Enter Email" value="" maxlength="50" required="Please Enter Email">
 
                         </div>
 
@@ -302,13 +309,24 @@
 
         e.preventDefault();
 
-        $(this).html('Saving..');
+           var first_name = $("input[name='first_name']").val();
 
-    
+            var last_name = $("input[name='last_name']").val();
+
+            var email = $("input[name='email']").val();
+
+            var status = $("select[name='status']").val();
+       
+
+
+
+       
+
+  $(this).html('Saving..');   
 
         $.ajax({
 
-          data: $('#userForm').serialize(),
+          data: {first_name:first_name, last_name:last_name, email:email, status:status},
 
           url: "{{ route('ajaxusers.store') }}",
 
@@ -318,31 +336,49 @@
 
           success: function (data) {
 
-     
+            if($.isEmptyObject(data.error)){
 
-              $('#userForm').trigger("reset");
+                        alert(data.success);
+                         $('#userForm').trigger("reset");
 
-              $('#ajaxModel').modal('hide');
+                        $('#ajaxModel').modal('hide');
 
-              table.draw();
+                        table.draw();
+
+                    }else{
+
+                        printErrorMsg(data.error);
+
+                    }
+       
+             
 
          
 
           },
 
-          error: function (data) {
 
-              console.log('Error:', data);
-
-              $('#saveBtn').html('Save Changes');
-
-          }
 
       });
+
 
     });
 
     
+
+    function printErrorMsg (msg) {
+
+            $(".print-error-msg").find("ul").html('');
+
+            $(".print-error-msg").css('display','block');
+
+            $.each( msg, function( key, value ) {
+
+                $(".print-error-msg").find("ul").append('<li>'+value+'</li>');
+
+            });
+
+        }
 
     $('body').on('click', '.deleteuser', function () {
 

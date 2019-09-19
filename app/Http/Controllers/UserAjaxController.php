@@ -14,6 +14,8 @@ use DataTables;
 
 use Illuminate\Support\Str; 
         
+use Validator;
+
 
 class UserAjaxController extends Controller
 
@@ -131,18 +133,30 @@ class UserAjaxController extends Controller
 
     {
 
-        User::updateOrCreate(['id' => $request->user_id],
+        
+        $validator = Validator::make($request->all(), [
 
-                ['email' => $request->email, 
-                'first_name' => $request->first_name,
-                'last_name' => $request->last_name,
-                'status' => $request->status
-            ]
-            );        
+            'first_name' => 'required',
 
-   
+            'last_name' => 'required',
 
-        return response()->json(['success'=>'User saved successfully.']);
+            'email' => 'required|email',
+
+            'status' => 'required',
+
+        ]);
+
+
+        if ($validator->passes()) {
+     
+            User::updateOrCreate($request->all());
+            return response()->json(['success'=>'Added new record.']);
+
+        }
+
+
+        return response()->json(['error'=>$validator->errors()->all()]);
+        
 
     }
 
